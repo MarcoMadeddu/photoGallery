@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferrari Image Grid</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div x-data="gallery" x-init="fetchImages()" @scroll.window="handleScroll">
+    
+    <div class="toolbar">
+        <div class="toolbar-controls">
+            <label><input type="checkbox" @change="toggleAll($event)" x-model="selectAll"> Seleziona tutti</label>
+            <button class="btn-download" :disabled="!selectedImages.length" @click="downloadSelected">Download</button>
+            <span class="results">Immagini selezionate: <span x-text="selectedImages.length"></span> / <span x-text="images.length"></span></span>
+        </div>
+    </div>
+
+    <div class="flex">
+        <template x-for="(image, index) in images" :key="image.id">
+            <div class="card">
+                <div class="card-control">
+                    <input type="checkbox" class="imageCheckbox" :value="image.id" x-model="selectedImages">
+                </div>
+                <div class="image-container" @click="openModal(index)">
+                    <img :src="image.url" :alt="image.title">
+                    <span class="filetype" x-text="image.filetype"></span>
+                </div>
+                <div class="info">
+                    <div class="title" x-text="image.title"></div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <div x-show="loading" class="loading">Caricamento...</div>
+    <div class="privacy">Privacy policy</div>
+
+    <!-- MODALE -->
+    <div x-show="isModalOpen" class="modal-overlay" @click="closeModal()">
+        <div class="modal" @click.stop>
+            <div class="title-container">
+                <div class="title" x-text="currentImage.title"></div>
+                <button class="close-btn" @click="closeModal()">✖</button>
+            </div>
+            <div class="modal-content">
+                <div class="zoom-container" @wheel.prevent="zoom($event)">
+                    <img :src="currentImage.url" :alt="currentImage.title" :style="'transform: scale(' + zoomLevel + ');'">
+                </div>
+            </div>
+            <div class="modal-controls">
+                <button class="btn" @click="prevImage()">← Prev</button>
+                <button class="btn" @click="downloadImage()">Download</button>
+                <button class="btn" @click="nextImage()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('gallery', () => ({
+        // randomUrl:["https://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/c21600fb-9447-4e0f-87aa-08fc90b10c23.jpg?v=367","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/38a0205e-00a6-4ac3-8bb4-9d22259a49e9.jpg?v=361","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/b378fa6a-1838-4e0d-b265-9e9c778edfd9.jpg?v=371","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/78a38f9c-89eb-4de8-b6a4-5410a06ad088.jpg?v=212","http://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/584e65fa-69ff-4b81-acf5-998535d89d29.jpg?v=367"],
+        images: [],
+        selectedImages: [],
+        selectAll: false,
+        loading: false,
+        page: 1,
+        perPage: 10,
+        unsplashApiKey: "c4Zh1VHp6WeGk6PUhv_3i_xpz_M6D_5qsmq1Bmi5C1g",
+
+        isModalOpen: false,
+        currentIndex: 0,
+        zoomLevel: 1,
+
+        get currentImage() {
+            return this.images[this.currentIndex] || {};
+        },
+
+        async fetchImages() {
+            if (this.loading) return;
+            this.loading = true;
+
+            try {
+                const response = await fetch(`https://api.unsplash.com/search/photos?query=ferrari&page=${this.page}&per_page=${this.perPage}&client_id=${this.unsplashApiKey}`);
+                const data = await response.json();
+
+                this.images = [...this.images, ...data.results.map(img => ({
+                    id: img.id,
+                    url: "https://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/c21600fb-9447-4e0f-87aa-08fc90b10c23.jpg?v=367",
+                    title: img.alt_description || "Ferrari Image",
+                    filetype: 'JPG',
+                }))];
+
+                // this.images = [
+                //     ...this.images,
+                //     ...data.results.map(img => {
+                //         const randomIndex = Math.floor(Math.random() * this.randomUrl.length);
+                //         return {
+                //             id: img.id,
+                //             url: this.randomUrl[randomIndex], // Usa this.randomUrl invece di randomUrl
+                //             title: img.alt_description || "Ferrari Image",
+                //             filetype: 'JPG',
+                //         };
+                //     })
+                // ];
+
+
+                this.page++;
+            } catch (error) {
+                console.error("Errore nel recupero delle immagini:", error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        handleScroll() {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                this.fetchImages();
+            }
+        },
+
+        toggleAll(event) {
+            this.selectedImages = event.target.checked ? this.images.map(img => img.id) : [];
+        },
+
+        async downloadSelected() {
+            if (!this.selectedImages.length) return alert("Nessuna immagine selezionata.");
+
+            let zip = new JSZip();
+            let imgFolder = zip.folder("ferrari_international_media_test_drive");
+
+            await Promise.all(this.selectedImages.map(async (imageId) => {
+                let image = this.images.find(img => img.id === imageId);
+                if (image) {
+                    try {
+                        let response = await fetch(image.url);
+                        let blob = await response.blob();
+                        imgFolder.file(image.title.replace(/\s+/g, "_") + "." + image.filetype, blob);
+                    } catch (error) {
+                        console.error("Errore nel download di", image.url, error);
+                    }
+                }
+            }));
+
+            zip.generateAsync({ type: "blob" }).then(content => saveAs(content, "ferrari_international_media_test_drive.zip"));
+        },
+
+        openModal(index) {
+            this.currentIndex = index;
+            this.zoomLevel = 1;
+            this.isModalOpen = true;
+        },
+
+        closeModal() {
+            this.isModalOpen = false;
+        },
+
+        nextImage() {
+            this.currentIndex = (this.currentIndex + 1) % this.images.length;
+            this.zoomLevel = 1;
+        },
+
+        prevImage() {
+            this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+            this.zoomLevel = 1;
+        },
+
+        zoom(event) {
+            let scaleStep = 0.1;
+            if (event.deltaY < 0 && this.zoomLevel < 5) {
+                this.zoomLevel += scaleStep;
+            } else if (event.deltaY > 0 && this.zoomLevel > 1) {
+                this.zoomLevel -= scaleStep;
+            }
+        },
+
+        downloadImage() {
+            fetch(this.currentImage.url)
+                .then(res => res.blob())
+                .then(blob => saveAs(blob, this.currentImage.title + ".jpg"))
+                .catch(error => console.error("Errore nel download:", error));
+        }
+    }));
+});
+</script>
+
+</body>
+</html>
