@@ -1,7 +1,7 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('gallery', () => ({
-        randomUrl:["https://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/c21600fb-9447-4e0f-87aa-08fc90b10c23.jpg?v=367","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/38a0205e-00a6-4ac3-8bb4-9d22259a49e9.jpg?v=361","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/b378fa6a-1838-4e0d-b265-9e9c778edfd9.jpg?v=371","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/78a38f9c-89eb-4de8-b6a4-5410a06ad088.jpg?v=212","http://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/584e65fa-69ff-4b81-acf5-998535d89d29.jpg?v=367"],
-        // randomUrl:["https://ferrari-cdn.thron.com/static/UMHOCR_0_FERRARI_167_COMBINATION_FILM_16X9_FINAL_9R8W69.mp4"],
+        randomImgUrl:["https://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/c21600fb-9447-4e0f-87aa-08fc90b10c23.jpg?v=367","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/38a0205e-00a6-4ac3-8bb4-9d22259a49e9.jpg?v=361","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/b378fa6a-1838-4e0d-b265-9e9c778edfd9.jpg?v=371","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/78a38f9c-89eb-4de8-b6a4-5410a06ad088.jpg?v=212","http://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/584e65fa-69ff-4b81-acf5-998535d89d29.jpg?v=367"],
+        // randomImgUrl:["https://ferrari-cdn.thron.com/static/UMHOCR_0_FERRARI_167_COMBINATION_FILM_16X9_FINAL_9R8W69.mp4"],
         contents: [],
         selectedContents: [],
         selectAll: false,
@@ -25,6 +25,24 @@ document.addEventListener('alpine:init', () => {
             try {
                 const response = await fetch(`https://api.unsplash.com/search/photos?query=ferrari&page=${this.page}&per_page=${this.perPage}&client_id=${this.unsplashApiKey}`);
                 const data = await response.json();
+                const dataVideo = [
+                    {
+                        url: "https://s7g10.scene7.com/is/content/ferraristage/HTJHK7_APP-Ferrari_SF90Stradale_768x1024-2000_YLEGP6+%281%29",
+                        thumbnailUrl: "https://s7g10.scene7.com/is/image/ferraristage/HTJHK7_APP-Ferrari_SF90Stradale_768x1024-2000_YLEGP6+%281%29-AVS",
+                        nameTitle: "HTJHK7_APP-Ferrari_SF90Stradale_768x1024-2000_YLEGP6 (1).mp4"
+                    },
+                    {
+                        url: "https://s7g10.scene7.com/is/content/ferraristage/0_FERRARI_167_BEAUTY_FILM_FINAL",
+                        thumbnailUrl: "https://s7g10.scene7.com/is/image/ferraristage/0_FERRARI_167_BEAUTY_FILM_FINAL-AVS",
+                        nameTitle: "0_FERRARI_167_BEAUTY_FILM_FINAL.mp4"
+                    },
+                    {
+                        url: "https://s7g10.scene7.com/is/content/ferraristage/SF90+SPIDER+%281%29",
+                        thumbnailUrl: "https://s7g10.scene7.com/is/image/ferraristage/SF90+SPIDER+%281%29-AVS",
+                        nameTitle: "SF90 SPIDER (1).mp4"
+                    }
+                ];
+                
 
                 // this.contents = [...this.contents, ...data.results.map(img => ({
                 //     id: img.id,
@@ -36,14 +54,19 @@ document.addEventListener('alpine:init', () => {
                 this.contents = [
                     ...this.contents,
                     ...data.results.map(img => {
-                        const randomIndex = Math.floor(Math.random() * this.randomUrl.length);
+                        // const randomIndex = Math.floor(Math.random() * this.randomImgUrl.length);
+                        const randomIndex = Math.floor(Math.random() * dataVideo.length);
                         return {
                             id: img.id,
-                            url: this.randomUrl[randomIndex], // Usa this.randomUrl invece di randomUrl
-                            title: img.alt_description || "Ferrari Image",
-                            thumbnailUrl: this.randomUrl[randomIndex] || null,
+
+                            // url: this.randomImgUrl[randomIndex],
+                            //inerisci l'url di scene7 in caso di video
+                            url: dataVideo[randomIndex].url,
+                            thumbnailUrl:  dataVideo[randomIndex].thumbnailUrl,
+                            title: dataVideo[randomIndex].nameTitle,
+                            // title: img.alt_description || 'Ferrari image',
                             contentType: 'video',
-                            filetype: 'jpg',
+                            filetype: 'mp4',
                         };
                     })
                 ];
@@ -121,7 +144,7 @@ document.addEventListener('alpine:init', () => {
         downloadContent() {
             fetch(this.currentContent.url)
                 .then(res => res.blob())
-                .then(blob => saveAs(blob, this.currentContent.title + ".jpg"))
+                .then(blob => saveAs(blob, this.currentContent.title + "." + this.currentContent.filetype))
                 .catch(error => console.error("Errore nel download:", error));
         }
     }));

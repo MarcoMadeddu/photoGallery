@@ -154,6 +154,7 @@ body {
   padding: 5px;
   flex-grow: 1;
   margin-top: 1em;
+  max-width: 100%;
 }
 
 .title {
@@ -314,6 +315,11 @@ iframe{
   border: none;
 }
 
+video{
+  max-width: 100%;
+  max-height: 100%;
+}
+
 
 
 @media (max-width: 1024px) {
@@ -398,6 +404,9 @@ iframe{
   }
   .btn-download {
     width: 100%;
+  }
+  .zoom-container img {
+    padding-right: 2.2em;
   }
 
  

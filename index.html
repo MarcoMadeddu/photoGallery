@@ -42,10 +42,6 @@
                                 ▶
                             </button>
                         </div>
-                        <!-- <video controls>
-                            <source :src="content.url" type="video/mp4">
-                            <span class="filetype" x-text="content.filetype"></span>
-                        </video> -->
                     </template>
                     <template x-if="content.contentType === 'pdf'">
                         <iframe :src="content.url" type="application/pdf" width="100%" height="200px"></iframe>
@@ -76,11 +72,13 @@
                     </div>
                 </template>
                     <template x-if="currentContent.contentType === 'video'">
-                        <iframe 
-                            src="https://ferrari.scene7.com/s7viewers/html5/VideoViewer.html?asset=ferraristage/wp_miami_2024_v6__1080p-AVS&videoserverurl=https://ferrari.scene7.com/is/content/&serverurl=https://ferrari.scene7.com/is/image/&contenturl=https://ferrari.scene7.com/is/content&config=/ferraristage/SmartCropVideo_social|SMART_CROP_VIDEO|false" 
+                        <!-- <iframe :src="currentContent.url"
                             allow="fullscreen"
                             overflow="hidden">
-                        </iframe>
+                        </iframe> -->
+                        <video controls="" autoplay="" name="media">
+                            <source :src= "currentContent.url" type="video/mp4">
+                        </video>
                     </template>
                     <template x-if="currentContent.contentType === 'pdf'">
                         <iframe :src="currentContent.url" type="application/pdf" width="100%" height="200px"></iframe>
