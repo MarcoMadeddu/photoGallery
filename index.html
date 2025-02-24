@@ -17,7 +17,7 @@
         <div class="toolbar-content">
             <div class="selection-row">
                 <label><input type="checkbox" @change="toggleAll($event)" x-model="selectAll"> Select all</label>
-                <span class="results">Selected images: <span x-text="selectedContents.length"></span> / <span x-text="contents.length"></span></span>
+                <span class="results">Selected assets: <span x-text="selectedContents.length"></span> / <span x-text="contents.length"></span></span>
             </div>
             <button class="btn-download" :disabled="!selectedContents.length" @click="downloadSelected">Download</button>
         </div>
@@ -44,7 +44,7 @@
                         </div>
                     </template>
                     <template x-if="content.contentType === 'pdf'">
-                        <iframe :src="content.url" type="application/pdf" width="100%" height="200px"></iframe>
+                        <img :src="content.thumbnailUrl" :alt="content.title">
                     </template>
                 </div>
                 <div class="info">
@@ -62,7 +62,11 @@
         <div class="modal" @click.stop>
             <div class="title-container">
                 <div class="title" x-text="currentContent.title"></div>
-                <button class="close-btn" @click="closeModal()">✖</button>
+                <div class="title-container-control">
+                    <button class="close-btn no-phone" @click="expandModal()">⛶</button>
+                    <button class="close-btn" @click="closeModal()">✖</button>
+                </div>
+                
             </div>
             <div class="modal-content">
                 <template x-if="currentContent.contentType === 'image'">
@@ -71,17 +75,13 @@
                              :style="'transform: scale(' + zoomLevel + ');'">
                     </div>
                 </template>
+
                     <template x-if="currentContent.contentType === 'video'">
-                        <!-- <iframe :src="currentContent.url"
-                            allow="fullscreen"
-                            overflow="hidden">
-                        </iframe> -->
-                        <video controls="" autoplay="" name="media">
-                            <source :src= "currentContent.url" type="video/mp4">
-                        </video>
+                        <video :key="currentIndex.url"controls="" autoplay="" name="media":src= "currentContent.url" type="video/mp4"></video>
                     </template>
+
                     <template x-if="currentContent.contentType === 'pdf'">
-                        <iframe :src="currentContent.url" type="application/pdf" width="100%" height="200px"></iframe>
+                        <iframe :src="currentContent.url"  :key="currentIndex.url" width="100%" height="100%"></iframe>
                     </template>
             </div>
             <div class="modal-controls">

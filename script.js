@@ -1,6 +1,6 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('gallery', () => ({
-        randomImgUrl:["https://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/c21600fb-9447-4e0f-87aa-08fc90b10c23.jpg?v=367","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/38a0205e-00a6-4ac3-8bb4-9d22259a49e9.jpg?v=361","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/b378fa6a-1838-4e0d-b265-9e9c778edfd9.jpg?v=371","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/78a38f9c-89eb-4de8-b6a4-5410a06ad088.jpg?v=212","http://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/584e65fa-69ff-4b81-acf5-998535d89d29.jpg?v=367"],
+        randomImgUrl:["https://s7g10.scene7.com/is/image/ferraristage/d9e922f983de3da26ef63eda1c6b0ba1+%281%29","https://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/c21600fb-9447-4e0f-87aa-08fc90b10c23.jpg?v=367","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/38a0205e-00a6-4ac3-8bb4-9d22259a49e9.jpg?v=361","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/b378fa6a-1838-4e0d-b265-9e9c778edfd9.jpg?v=371","https://ferrari-cdn.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/78a38f9c-89eb-4de8-b6a4-5410a06ad088.jpg?v=212","http://ferrari-view.thron.com/api/xcontents/resources/delivery/getThumbnail/ferrari/400x400/584e65fa-69ff-4b81-acf5-998535d89d29.jpg?v=367"],
         // randomImgUrl:["https://ferrari-cdn.thron.com/static/UMHOCR_0_FERRARI_167_COMBINATION_FILM_16X9_FINAL_9R8W69.mp4"],
         contents: [],
         selectedContents: [],
@@ -11,8 +11,9 @@ document.addEventListener('alpine:init', () => {
         unsplashApiKey: "c4Zh1VHp6WeGk6PUhv_3i_xpz_M6D_5qsmq1Bmi5C1g",
 
         isModalOpen: false,
+        isFullScreen: false,
         currentIndex: 0,
-        zoomLevel: 1,
+        zoomLevel: 1.5,
 
         get currentContent() {
             return this.contents[this.currentIndex] || {};
@@ -42,6 +43,24 @@ document.addEventListener('alpine:init', () => {
                         nameTitle: "SF90 SPIDER (1).mp4"
                     }
                 ];
+
+                const dataPdf = [
+                    {
+                        url: "https://pdfobject.com/pdf/sample.pdf",
+                        thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+                        nameTitle: "Documento Pdf 1"
+                    },
+                    {
+                        url: "https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf",
+                        thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+                        nameTitle: "Documento Pdf 2"
+                    },
+                    {
+                        url: "https://www.rd.usda.gov/sites/default/files/pdf-sample_0.pdf",
+                        thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/337/337946.png",
+                        nameTitle: "Documento Pdf 3"
+                    }
+                ];
                 
 
                 // this.contents = [...this.contents, ...data.results.map(img => ({
@@ -59,14 +78,14 @@ document.addEventListener('alpine:init', () => {
                         return {
                             id: img.id,
 
-                            // url: this.randomImgUrl[randomIndex],
+                            url: this.randomImgUrl[randomIndex],
                             //inerisci l'url di scene7 in caso di video
-                            url: dataVideo[randomIndex].url,
-                            thumbnailUrl:  dataVideo[randomIndex].thumbnailUrl,
-                            title: dataVideo[randomIndex].nameTitle,
-                            // title: img.alt_description || 'Ferrari image',
-                            contentType: 'video',
-                            filetype: 'mp4',
+                            // url: dataVideo[randomIndex].url,
+                            // thumbnailUrl:  dataVideo[randomIndex].thumbnailUrl,
+                            // title: dataVideo[randomIndex].nameTitle,
+                            title: img.alt_description || 'Ferrari image',
+                            contentType: 'image',
+                            filetype: 'jpg',
                         };
                     })
                 ];
@@ -113,30 +132,59 @@ document.addEventListener('alpine:init', () => {
         },
 
         openModal(index) {
+            document.body.style.overflow ="hidden";
             this.currentIndex = index;
-            this.zoomLevel = 1;
+            this.zoomLevel = 1.5;
             this.isModalOpen = true;
+            this.isFullScreen = false;
         },
 
         closeModal() {
+            
+            document.body.style.overflow ="";
             this.isModalOpen = false;
+            this.$nextTick(() => {
+                this.currentIndex = null;
+            });
+
+            // const modal = document.getElementsByClassName("modal")[0];
+            // modal.style.width = "80%";
+            //     modal.style.maxWidth = "1070px";
+            //     modal.style.height = "580px";
+        },
+
+        expandModal() {
+            this.isFullScreen = !this.isFullScreen;
+
+            const modal = document.getElementsByClassName("modal")[0];
+            if (this.isFullScreen) {
+                // Imposta il modal in modalità fullscreen
+                modal.style.width = "100%";
+                modal.style.maxWidth = "100%";
+                modal.style.height = "100%";
+              } else {
+                // Imposta il modal a dimensioni più piccole
+                modal.style.width = "80%";
+                modal.style.maxWidth = "1070px";
+                modal.style.height = "580px";
+              }
         },
 
         nextContent() {
             this.currentIndex = (this.currentIndex + 1) % this.contents.length;
-            this.zoomLevel = 1;
+            this.zoomLevel = 1.5;
         },
 
         prevContent() {
             this.currentIndex = (this.currentIndex - 1 + this.contents.length) % this.contents.length;
-            this.zoomLevel = 1;
+            this.zoomLevel = 1.5;
         },
 
         zoom(event) {
             let scaleStep = 0.1;
-            if (event.deltaY < 0 && this.zoomLevel < 5) {
+            if (event.deltaY < 0 && this.zoomLevel < 6) {
                 this.zoomLevel += scaleStep;
-            } else if (event.deltaY > 0 && this.zoomLevel > 1) {
+            } else if (event.deltaY > 0 && this.zoomLevel > 1.5) {
                 this.zoomLevel -= scaleStep;
             }
         },

@@ -223,8 +223,8 @@ body {
 
 .modal {
   width: 80%;
-  max-width: 800px;
-  height: 500px;
+  max-width: 1070px;
+  height: 580px;
   background: white;
   border-radius: 10px;
   padding: 10px;
@@ -389,6 +389,7 @@ video{
   }
   .modal {
     width: 100%;
+    max-width: 1070px;
     height: 100%;
     padding: 0;
     border-radius: 0;
@@ -407,6 +408,12 @@ video{
   }
   .zoom-container img {
     padding-right: 2.2em;
+  }
+  .no-phone{
+    display:  none;
+  }
+  .title{
+    height: 25px;
   }
 
  
