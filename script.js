@@ -6,6 +6,7 @@ document.addEventListener('alpine:init', () => {
         selectedContents: [],
         selectAll: false,
         loading: false,
+        isDownloading: false,
         page: 1,
         perPage: 10,
         unsplashApiKey: "c4Zh1VHp6WeGk6PUhv_3i_xpz_M6D_5qsmq1Bmi5C1g",
@@ -78,14 +79,14 @@ document.addEventListener('alpine:init', () => {
                         return {
                             id: img.id,
 
-                            url: this.randomImgUrl[randomIndex],
+                            // url: this.randomImgUrl[randomIndex],
                             //inerisci l'url di scene7 in caso di video
-                            // url: dataVideo[randomIndex].url,
-                            // thumbnailUrl:  dataVideo[randomIndex].thumbnailUrl,
-                            // title: dataVideo[randomIndex].nameTitle,
+                            url: dataVideo[randomIndex].url,
+                            thumbnailUrl:  dataVideo[randomIndex].thumbnailUrl,
+                            title: dataVideo[randomIndex].nameTitle,
                             title: img.alt_description || 'Ferrari image',
-                            contentType: 'image',
-                            filetype: 'jpg',
+                            contentType: 'video',
+                            filetype: 'mp4',
                         };
                     })
                 ];
@@ -111,6 +112,7 @@ document.addEventListener('alpine:init', () => {
 
         async downloadSelected() {
             if (!this.selectedContents.length) return alert("Nessuna immagine selezionata.");
+            this.isDownloading = true;
 
             let zip = new JSZip();
             let imgFolder = zip.folder("ferrari_international_media_test_drive");
@@ -128,7 +130,13 @@ document.addEventListener('alpine:init', () => {
                 }
             }));
 
-            zip.generateAsync({ type: "blob" }).then(content => saveAs(content, "ferrari_international_media_test_drive.zip"));
+            zip.generateAsync({ type: "blob" }).then(content => {
+                saveAs(content, "ferrari_international_media_test_drive.zip");
+                this.isDownloading = false;
+            }).catch(error => {
+                console.error("Errore nella generazione dello ZIP", error);
+                this.isDownloading = false;
+            });
         },
 
         openModal(index) {

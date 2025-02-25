@@ -19,7 +19,17 @@
                 <label><input type="checkbox" @change="toggleAll($event)" x-model="selectAll"> Select all</label>
                 <span class="results">Selected assets: <span x-text="selectedContents.length"></span> / <span x-text="contents.length"></span></span>
             </div>
-            <button class="btn-download" :disabled="!selectedContents.length" @click="downloadSelected">Download</button>
+            <button class="btn-download" 
+                    :disabled="!selectedContents.length || isDownloading" 
+                    @click="downloadSelected">
+                    <span x-show="isDownloading" class="loading-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="loading-svg">
+                            <circle cx="12" cy="12" r="10" stroke-opacity="0.3"></circle>
+                            <path d="M12 2 A10 10 0 0 1 22 12" stroke="black"></path>
+                        </svg>
+                    </span>
+                <span x-show="!isDownloading">Download</span>
+            </button>
         </div>
     </div>
 
